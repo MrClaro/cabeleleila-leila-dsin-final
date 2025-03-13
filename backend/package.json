@@ -1,0 +1,27 @@
+{
+	"name": "backend",
+	"private": true,
+	"version": "0.0.0",
+	"scripts": {
+		"dev": "nodemon --watch 'src/' --exec 'ts-node src/app.ts' -e ts",
+		"start": "node dist/src/app.js",
+		"build": "tsc"
+	},
+	"dependencies": {
+		"@types/http-errors": "^2.0.4",
+		"dotenv": "^16.4.7",
+		"express": "^4.21.2",
+		"http-errors": "^2.0.0",
+		"morgan": "^1.10.0"
+	},
+	"devDependencies": {
+		"@types/express": "^5.0.0",
+		"@types/morgan": "^1.9.9",
+		"@types/node": "^22.13.10",
+		"joi": "^17.13.3",
+		"nodemon": "^3.1.9",
+		"prisma": "^6.5.0",
+		"ts-node": "^10.9.2",
+		"typescript": "^5.8.2"
+	}
+}
