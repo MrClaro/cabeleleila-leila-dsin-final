@@ -7,7 +7,7 @@ router.use(express.json());
 
 router.get(
 	"/",
-	async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+	async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 		try {
 			await ConsultarUsuarioController.validarConsulta(req, res, next);
 			return;
@@ -19,11 +19,11 @@ router.get(
 
 router.get(
 	"/:id",
-	async (req: Request, res: Response, next: NextFunction): Promise<any> => {
+	async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 		try {
 			const { id } = req.params;
 			if (!id) {
-				return res.status(404).json({
+				res.status(404).json({
 					response: "Formato da requisição inválida!",
 				});
 			}
