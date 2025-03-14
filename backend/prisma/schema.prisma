@@ -34,7 +34,7 @@ model appointment {
   user_id      Int
   user         user                 @relation(fields: [user_id], references: [id])
   date_time    DateTime             @default(now())
-  services     AppointmentService[]
+  services     appointmentService[]
   status       status               @default(SCHEDULED)
   observations String?
 }
@@ -45,7 +45,7 @@ model service {
   name         String
   description  String?
   price        Float
-  appointments AppointmentService[]
+  appointments appointmentService[]
   status       status               @default(SCHEDULED)
 }
 
@@ -55,8 +55,8 @@ model appointmentService {
   appointment   appointment @relation(fields: [appointmentId], references: [id])
   serviceId     Int
   service       service     @relation(fields: [serviceId], references: [id])
-  quantity      Int? 
-  observations  String? 
+  quantity      Int?
+  observations  String?
 
   @@id([appointmentId, serviceId])
 }
