@@ -1,4 +1,9 @@
-import { PrismaClient, Prisma, status as StatusService } from "@prisma/client";
+import {
+	PrismaClient,
+	Prisma,
+	status as StatusService,
+	service as Service,
+} from "@prisma/client";
 import createError from "http-errors";
 
 const prisma = new PrismaClient();
@@ -9,7 +14,7 @@ class CadastrarServicoService {
 		price: number,
 		description?: string,
 		status?: string,
-	): Promise<any> {
+	): Promise<Service> {
 		try {
 			const servicoExistente = await prisma.service.findFirst({
 				where: {
@@ -41,6 +46,7 @@ class CadastrarServicoService {
 			if (novoServico) {
 				return novoServico;
 			}
+			throw createError(404, "Erro ao criar novo serviço");
 		} catch (error) {
 			if (error instanceof Prisma.PrismaClientKnownRequestError) {
 				throw createError(500, "Erro ao acessar o banco de dados.");
