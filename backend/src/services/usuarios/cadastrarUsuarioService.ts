@@ -8,6 +8,7 @@ class CadastraUsuarioService {
 		name: string,
 		email: string,
 		password: string,
+		phone: string,
 		role?: string,
 	) {
 		try {
@@ -33,6 +34,7 @@ class CadastraUsuarioService {
 					name,
 					email,
 					password,
+					phone,
 					role: parsedRole,
 				},
 			});
