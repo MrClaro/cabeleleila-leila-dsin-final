@@ -18,7 +18,7 @@ class CadastraUsuarioService {
 				throw createError(409, "Usuario com esse email já existente ");
 			}
 
-			let parsedRole: UserRole = UserRole.EMPLOYEE;
+			let parsedRole: UserRole = UserRole.CLIENT;
 			if (role) {
 				const upperRole = role.toUpperCase();
 				if (Object.values(UserRole).includes(upperRole as UserRole)) {
