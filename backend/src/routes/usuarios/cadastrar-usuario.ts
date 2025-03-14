@@ -1,7 +1,10 @@
-import { Request, Response, NextFunction, Router } from "express";
+import express, { Request, Response, NextFunction, Router } from "express";
 import CadastraUsuarioController from "../../controllers/cadastrar-usuario-controller";
 
 const router = Router();
+
+router.use(express.json());
+router.use(express.urlencoded({ extended: true }));
 
 router.post(
 	"/",
