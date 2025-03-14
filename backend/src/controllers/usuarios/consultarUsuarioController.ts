@@ -1,7 +1,7 @@
 import Joi from "joi";
 import createError from "http-errors";
 import { Request, Response, NextFunction } from "express";
-import ConsultaUsuarioService from "../../services/usuarios/consultarUsuarioService";
+import ConsultarUsuarioService from "../../services/usuarios/consultarUsuarioService";
 class ConsultarUsuarioController {
 	async validarConsulta(
 		req: Request,
@@ -9,7 +9,7 @@ class ConsultarUsuarioController {
 		next: NextFunction,
 	): Promise<void> {
 		try {
-			const users = await ConsultaUsuarioService.consultarUsuarios();
+			const users = await ConsultarUsuarioService.consultarUsuarios();
 			res.status(200).json({ users });
 		} catch (error) {
 			console.log(error);
@@ -36,7 +36,8 @@ class ConsultarUsuarioController {
 				return next(error);
 			}
 			const parsedId = parseInt(id);
-			const user = await ConsultaUsuarioService.consultarUsuarioPorId(parsedId);
+			const user =
+				await ConsultarUsuarioService.consultarUsuarioPorId(parsedId);
 
 			if (!user) {
 				return next(createError(404, "Usuário não encontrado"));
