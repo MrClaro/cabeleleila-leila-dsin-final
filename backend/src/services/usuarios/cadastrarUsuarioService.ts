@@ -1,16 +1,21 @@
-import { PrismaClient, Prisma, role as UserRole } from "@prisma/client";
+import {
+	PrismaClient,
+	Prisma,
+	role as UserRole,
+	user as User,
+} from "@prisma/client";
 import createError from "http-errors";
 
 const prisma = new PrismaClient();
 
-class CadastraUsuarioService {
+class CadastrarUsuarioService {
 	async cadastrarUsuario(
 		name: string,
 		email: string,
 		password: string,
 		phone: string,
 		role?: string,
-	) {
+	): Promise<User> {
 		try {
 			const usuarioExistente = await prisma.user.findUnique({
 				where: { email },
@@ -59,4 +64,4 @@ class CadastraUsuarioService {
 	}
 }
 
-export default new CadastraUsuarioService();
+export default new CadastrarUsuarioService();
