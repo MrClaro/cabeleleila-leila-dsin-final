@@ -1,7 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import createError from "http-errors";
 import Joi from "joi";
-import cadastraUsuarioService from "../services/cadastrar-usuario-service";
+import cadastraUsuarioService from "../../services/usuarios/cadastrar-usuario-service";
 
 class CadastraUsuarioController {
 	async validarUsuario(
@@ -45,7 +45,7 @@ class CadastraUsuarioController {
 						"string.pattern.base":
 							"A senha deve conter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial.",
 					}),
-				role: Joi.string().valid("EMPLOYEE", "MANAGER", "ADMIN").optional(),
+				role: Joi.string().valid("EMPLOYEE", "CLIENT", "ADMIN").optional(),
 			});
 			const { error } = cadastroSchema.validate({
 				name,
