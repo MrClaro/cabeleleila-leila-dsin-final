@@ -1,5 +1,5 @@
 import express, { Request, Response, NextFunction, Router } from "express";
-import CadastraUsuarioController from "../../controllers/usuarios/cadastrar-usuario-controller";
+import CadastraUsuarioController from "../../controllers/usuarios/cadastrarUsuarioController";
 
 const router = Router();
 
