@@ -3,12 +3,12 @@ import createError from "http-errors";
 import Joi from "joi";
 import CadastrarServicoService from "../../services/servicos/cadastrarServicoService";
 
-class CadastraServicoController {
-	async validarServico(
+class CadastrarServicoController {
+	async validarCadastro(
 		req: Request,
 		res: Response,
 		next: NextFunction,
-	): Promise<any> {
+	): Promise<void> {
 		try {
 			const { name, price, description, status } = req.body;
 
@@ -57,4 +57,4 @@ class CadastraServicoController {
 	}
 }
 
-export default new CadastraServicoController();
+export default new CadastrarServicoController();
