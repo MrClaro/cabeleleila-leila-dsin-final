@@ -30,12 +30,23 @@ const server = http.createServer(app);
 // --------
 // ARQUIVOS
 // --------
-import cadastrarUsuario from "./routes/usuarios/cadastrar-usuario";
+//  Usuários
+import cadastrarUsuario from "./routes/usuarios/cadastrarUsuarioRoute";
+import consultarUsuario from "./routes/usuarios/consultarUsuarioRoute";
+//  Serviços
+import cadastrarServico from "./routes/servicos/cadastrarServicoRoute";
+//  Atendimento
+import cadastrarAtendimento from "./routes/atendimentos/cadastrarAtendimentoRoute";
 
 // --------
 // ROUTES
 // --------
 app.use("/usuarios/cadastrar", cadastrarUsuario);
+app.use("/usuarios/consultar", consultarUsuario);
+
+app.use("/servicos/cadastrar", cadastrarServico);
+
+app.use("/atendimentos/cadastrar", cadastrarAtendimento);
 
 // --------
 // MIDDLEWARE PARA ERRO 404
