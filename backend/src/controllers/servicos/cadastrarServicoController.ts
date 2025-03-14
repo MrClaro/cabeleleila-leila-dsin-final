@@ -1,9 +1,10 @@
 import { Response, Request, NextFunction } from "express";
 import createError from "http-errors";
 import Joi from "joi";
+import CadastrarServicoService from "../../services/servicos/cadastrarServicoService";
 
 class CadastraServicoController {
-	async validaServico(
+	async validarServico(
 		req: Request,
 		res: Response,
 		next: NextFunction,
@@ -13,14 +14,13 @@ class CadastraServicoController {
 
 			const cadastroSchema = Joi.object({
 				name: Joi.string()
-					.alphanum()
 					.min(3)
 					.max(100)
-					.pattern(new RegExp("^[a-zA-Z]+$"))
+					.pattern(new RegExp("^[a-zA-Z\\s]+$"))
 					.trim()
 					.required()
 					.messages({
-						"string.alphanum": "O nome deve conter apenas letras.",
+						"string.pattern.base": "O nome deve conter apenas letras.",
 					}),
 				price: Joi.number().positive().precision(2).required().messages({
 					"numer.positive": "O preço deve ser positivo",
@@ -39,7 +39,7 @@ class CadastraServicoController {
 				if (error) {
 					return next(error);
 				}
-				const service = await cadastraServicoService.cadastrarServico(
+				const service = await CadastrarServicoService.cadastrarServico(
 					name,
 					price,
 					description,
@@ -48,8 +48,8 @@ class CadastraServicoController {
 				if (service) {
 					res.status(201).json({ service });
 				}
-			} catch (error) {
-				return next(error);
+			} catch (serviceError) {
+				return next(serviceError);
 			}
 		} catch (error) {
 			next(createError(500, "Erro interno do servidor"));
