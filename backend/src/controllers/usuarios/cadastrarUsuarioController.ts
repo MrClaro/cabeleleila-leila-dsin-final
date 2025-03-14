@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from "express";
 import createError from "http-errors";
 import Joi from "joi";
-import cadastraUsuarioService from "../../services/usuarios/cadastrarUsuarioService";
+import CadastrarUsuarioService from "../../services/usuarios/cadastrarUsuarioService";
 import formataTelefone from "../../tools/formataTelefone";
 
-class CadastraUsuarioController {
+class CadastrarUsuarioController {
 	async validarUsuario(
 		req: Request,
 		res: Response,
@@ -73,7 +73,7 @@ class CadastraUsuarioController {
 			const formatedPhone = formataTelefone(phone);
 
 			try {
-				const user = await cadastraUsuarioService.cadastrarUsuario(
+				const user = await CadastrarUsuarioService.cadastrarUsuario(
 					name,
 					email,
 					password,
@@ -92,4 +92,4 @@ class CadastraUsuarioController {
 	}
 }
 
-export default new CadastraUsuarioController();
+export default new CadastrarUsuarioController();
