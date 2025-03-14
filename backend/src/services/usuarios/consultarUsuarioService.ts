@@ -3,7 +3,7 @@ import createError from "http-errors";
 
 const prisma = new PrismaClient();
 
-class ConsultaUsuarioService {
+class ConsultarUsuarioService {
 	async consultarUsuarios(
 		skip?: number,
 		take?: number,
@@ -46,4 +46,4 @@ class ConsultaUsuarioService {
 		}
 	}
 }
-export default new ConsultaUsuarioService();
+export default new ConsultarUsuarioService();
