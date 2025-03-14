@@ -33,20 +33,32 @@ const server = http.createServer(app);
 //  Usuários
 import cadastrarUsuario from "./routes/usuarios/cadastrarUsuarioRoute";
 import consultarUsuario from "./routes/usuarios/consultarUsuarioRoute";
+import atualizarUsuario from "./routes/usuarios/atualizarUsuarioRoute";
+
 //  Serviços
 import cadastrarServico from "./routes/servicos/cadastrarServicoRoute";
-//  Atendimento
-import cadastrarAtendimento from "./routes/atendimentos/cadastrarAtendimentoRoute";
+import consultarServico from "./routes/servicos/consultarServicoRoute";
+import atualizarServico from "./routes/servicos/atualizarServicoRoute";
+
+//  Agendamento
+import cadastrarAgendamento from "./routes/agendamentos/cadastrarAgendamentoRoute";
+import consultarAgendamento from "./routes/agendamentos/consultarAgendamentoRoute";
+import atualizarAgendamento from "./routes/agendamentos/atualizarAgendamentoRoute";
 
 // --------
 // ROUTES
 // --------
 app.use("/usuarios/cadastrar", cadastrarUsuario);
 app.use("/usuarios/consultar", consultarUsuario);
+app.use("/usuarios/atualizar", atualizarUsuario);
 
 app.use("/servicos/cadastrar", cadastrarServico);
+app.use("/servicos/consultar", consultarServico);
+app.use("/servicos/atualizar", atualizarServico);
 
-app.use("/atendimentos/cadastrar", cadastrarAtendimento);
+app.use("/agendamentos/cadastrar", cadastrarAgendamento);
+app.use("/agendamentos/consultar", consultarAgendamento);
+app.use("/agendamentos/atualizar", atualizarAgendamento);
 
 // --------
 // MIDDLEWARE PARA ERRO 404
