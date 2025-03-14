@@ -1,5 +1,5 @@
 import express, { Router, Response, Request, NextFunction } from "express";
-import CadastraServicoController from "../../../controllers/servicos/cadastra-servico-controller";
+import CadastraServicoController from "../../controllers/servicos/cadastrarServicoController";
 
 const router = Router();
 
@@ -17,7 +17,7 @@ router.post(
 					response: "Formato da requisição inválida!",
 				});
 			}
-			await CadastraServicoController.validaServico(req, res, next);
+			await CadastraServicoController.validarServico(req, res, next);
 			return;
 		} catch (error) {
 			return next(error);
