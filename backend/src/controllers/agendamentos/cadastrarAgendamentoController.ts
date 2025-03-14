@@ -2,16 +2,16 @@ import { Request, Response, NextFunction } from "express";
 import createError from "http-errors";
 import Joi from "joi";
 import formataData from "../../tools/formataData";
-import CadastrarAtendimentoService from "../../services/atendimentos/cadastrarAtendimentoService";
+import CadastrarAgendamentoService from "../../services/agendamentos/cadastrarAgendamentoService";
 
-class CadastrarAtendimentoController {
-	async validarAtendimento(
+class CadastrarAgendamentoController {
+	async validarAgendamento(
 		req: Request,
 		res: Response,
 		next: NextFunction,
 	): Promise<void> {
 		try {
-			const { client_id, user_id, date_time, services } = req.body;
+			const { client_id, user_id, status, date_time, services } = req.body;
 
 			const cadastroSchema = Joi.object({
 				client_id: Joi.number().positive().required().messages({
@@ -30,7 +30,9 @@ class CadastrarAtendimentoController {
 						}),
 					)
 					.required(),
-				user_id: Joi.number().required(),
+				user_id: Joi.number().integer().positive().required().messages({
+					"number.required": "O id do usuário é obrigatorio",
+				}),
 			});
 
 			const { error } = cadastroSchema.validate({
@@ -56,9 +58,10 @@ class CadastrarAtendimentoController {
 				if (formatedDate) {
 					const dateObject = new Date(formatedDate);
 					const appointment =
-						await CadastrarAtendimentoService.cadastrarAtendimento(
+						await CadastrarAgendamentoService.cadastrarAgendamento(
 							client_id,
 							hasUserId,
+							status,
 							dateObject,
 							services,
 						);
@@ -75,4 +78,4 @@ class CadastrarAtendimentoController {
 	}
 }
 
-export default new CadastrarAtendimentoController();
+export default new CadastrarAgendamentoController();
