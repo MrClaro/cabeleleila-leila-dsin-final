@@ -7,6 +7,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// Usuário
 model user {
   id           Int           @id @default(autoincrement())
   name         String
@@ -19,31 +20,45 @@ model user {
   updated_at   DateTime      @updatedAt
 }
 
+// Cargo
 enum role {
   CLIENT
   EMPLOYEE
   ADMIN
 }
 
+// Agendamento
 model appointment {
-  id           Int       @id @default(autoincrement())
+  id           Int                  @id @default(autoincrement())
   client_id    Int
   user_id      Int
-  user         user      @relation(fields: [user_id], references: [id])
-  date_time    DateTime  @default(now())
-  services     service[]
-  status       status    @default(SCHEDULED)
+  user         user                 @relation(fields: [user_id], references: [id])
+  date_time    DateTime             @default(now())
+  services     AppointmentService[]
+  status       status               @default(SCHEDULED)
   observations String?
 }
 
+// Serviço
 model service {
-  id             Int         @id @default(autoincrement())
-  name           String
-  description    String?
-  price          Float
-  appointment_id Int
-  appointment    appointment @relation(fields: [appointment_id], references: [id])
-  status         status      @default(SCHEDULED)
+  id           Int                  @id @default(autoincrement())
+  name         String
+  description  String?
+  price        Float
+  appointments AppointmentService[]
+  status       status               @default(SCHEDULED)
+}
+
+// Intermediario entre serviço e agendamento - quebrar mutios pra muitos
+model appointmentService {
+  appointmentId Int
+  appointment   appointment @relation(fields: [appointmentId], references: [id])
+  serviceId     Int
+  service       service     @relation(fields: [serviceId], references: [id])
+  quantity      Int? 
+  observations  String? 
+
+  @@id([appointmentId, serviceId])
 }
 
 enum status {
