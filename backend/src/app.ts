@@ -12,7 +12,7 @@ dotenv.config();
 // INSTANCIA EXPRESS
 // --------
 const app = express();
-const routes = express.Router();
+const router = express.Router();
 
 // --------
 // MIDDLEWARES ESSENCIAIS
@@ -30,13 +30,12 @@ const server = http.createServer(app);
 // --------
 // ARQUIVOS
 // --------
+import cadastrarUsuario from "./routes/usuarios/cadastrar-usuario";
 
 // --------
 // ROUTES
 // --------
-routes.post("/", (req: Request, res: Response) => {
-	res.send("Cabeleleila-Leila");
-});
+app.use("/usuarios/cadastrar", cadastrarUsuario);
 
 // --------
 // MIDDLEWARE PARA ERRO 404
@@ -44,6 +43,11 @@ routes.post("/", (req: Request, res: Response) => {
 app.use((req: Request, res: Response, next: NextFunction) => {
 	next(createError(404));
 });
+
+// --------
+// LIBERAR ACESSO AS PORTAS
+// --------
+app.use("/", router);
 
 // --------
 // TRATAMENTO DE ERROS
