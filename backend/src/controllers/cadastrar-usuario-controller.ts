@@ -1,24 +1,23 @@
 import { Request, Response, NextFunction } from "express";
 import createError from "http-errors";
 import Joi from "joi";
-
-type UserRole = "EMPLOYEE" | "ADMIN" | "CLIENT";
+import cadastraUsuarioService from "../services/cadastrar-usuario-service";
 
 class CadastraUsuarioController {
-	async cadastraUsuario(
-		res: Response,
+	async validarUsuario(
 		req: Request,
+		res: Response,
 		next: NextFunction,
 	): Promise<void> {
 		try {
-			const { name, email, password } = req.body;
+			const { name, email, password, role } = req.body;
 
 			const cadastroSchema = Joi.object({
 				name: Joi.string()
 					.alphanum()
 					.min(3)
 					.max(100)
-					.pattern(new RegExp("/^[a-zA-Z]+$/"))
+					.pattern(new RegExp("^[a-zA-Z]+$"))
 					.trim()
 					.required()
 					.messages({
@@ -46,11 +45,31 @@ class CadastraUsuarioController {
 						"string.pattern.base":
 							"A senha deve conter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial.",
 					}),
+				role: Joi.string().valid("EMPLOYEE", "MANAGER", "ADMIN").optional(),
 			});
-			const { error } = cadastroSchema.validate({ name, email, password });
+			const { error } = cadastroSchema.validate({
+				name,
+				email,
+				password,
+				role,
+			});
 
 			if (error) {
 				return next(error);
+			}
+
+			try {
+				const user = await cadastraUsuarioService.cadastrarUsuario(
+					name,
+					email,
+					password,
+					role,
+				);
+				if (user) {
+					res.status(201).json({ user });
+				}
+			} catch (serviceError) {
+				return next(serviceError);
 			}
 		} catch (error) {
 			next(createError(500, "Erro interno do servidor"));
