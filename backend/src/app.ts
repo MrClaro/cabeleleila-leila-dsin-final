@@ -30,6 +30,13 @@ const server = http.createServer(app);
 // --------
 // ARQUIVOS
 // --------
+
+// Importação do middleware de autenticação
+import validarAcesso from "./middlewares/authTokenMiddleware";
+
+// Token
+import gerarToken from "./routes/token/gerarTokenRoute";
+
 //  Usuários
 import cadastrarUsuario from "./routes/usuarios/cadastrarUsuarioRoute";
 import consultarUsuario from "./routes/usuarios/consultarUsuarioRoute";
@@ -48,17 +55,19 @@ import atualizarAgendamento from "./routes/agendamentos/atualizarAgendamentoRout
 // --------
 // ROUTES
 // --------
-app.use("/usuarios/cadastrar", cadastrarUsuario);
-app.use("/usuarios/consultar", consultarUsuario);
-app.use("/usuarios/atualizar", atualizarUsuario);
+app.use("/token/gerar", gerarToken);
 
-app.use("/servicos/cadastrar", cadastrarServico);
-app.use("/servicos/consultar", consultarServico);
-app.use("/servicos/atualizar", atualizarServico);
+app.use("/usuarios/cadastrar", validarAcesso, cadastrarUsuario);
+app.use("/usuarios/consultar", validarAcesso, consultarUsuario);
+app.use("/usuarios/atualizar", validarAcesso, atualizarUsuario);
 
-app.use("/agendamentos/cadastrar", cadastrarAgendamento);
-app.use("/agendamentos/consultar", consultarAgendamento);
-app.use("/agendamentos/atualizar", atualizarAgendamento);
+app.use("/servicos/cadastrar", validarAcesso, cadastrarServico);
+app.use("/servicos/consultar", validarAcesso, consultarServico);
+app.use("/servicos/atualizar", validarAcesso, atualizarServico);
+
+app.use("/agendamentos/cadastrar", validarAcesso, cadastrarAgendamento);
+app.use("/agendamentos/consultar", validarAcesso, consultarAgendamento);
+app.use("/agendamentos/atualizar", validarAcesso, atualizarAgendamento);
 
 // --------
 // MIDDLEWARE PARA ERRO 404
