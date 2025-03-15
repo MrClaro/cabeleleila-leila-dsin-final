@@ -5,6 +5,7 @@ import {
 	role as UserRole,
 } from "@prisma/client";
 import createError from "http-errors";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -28,6 +29,10 @@ class AtualizarUsuarioService {
 				}
 			}
 
+			const hashedPassword = password
+				? await bcrypt.hash(password, 10)
+				: password;
+
 			const usuarioAtualizado = await prisma.user.update({
 				where: {
 					id: userId,
@@ -35,7 +40,7 @@ class AtualizarUsuarioService {
 				data: {
 					name,
 					email,
-					password,
+					password: hashedPassword,
 					phone,
 					role: parsedRole,
 				},

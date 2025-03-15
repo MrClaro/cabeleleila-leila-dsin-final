@@ -5,6 +5,7 @@ import {
 	user as User,
 } from "@prisma/client";
 import createError from "http-errors";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -33,12 +34,13 @@ class CadastrarUsuarioService {
 					throw createError(400, "Role inválida.");
 				}
 			}
+			const hashedPassword = await bcrypt.hash(password, 10);
 
 			const novoUsuario = prisma.user.create({
 				data: {
 					name,
 					email,
-					password,
+					password: hashedPassword,
 					phone,
 					role: parsedRole,
 				},
