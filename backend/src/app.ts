@@ -37,6 +37,9 @@ import validarAcesso from "./middlewares/authTokenMiddleware";
 // Token
 import gerarToken from "./routes/token/gerarTokenRoute";
 
+// Login
+import login from "./routes/login/loginRoute";
+
 //  Usuários
 import cadastrarUsuario from "./routes/usuarios/cadastrarUsuarioRoute";
 import consultarUsuario from "./routes/usuarios/consultarUsuarioRoute";
@@ -56,6 +59,8 @@ import atualizarAgendamento from "./routes/agendamentos/atualizarAgendamentoRout
 // ROUTES
 // --------
 app.use("/token/gerar", gerarToken);
+
+app.use("/login", login);
 
 app.use("/usuarios/cadastrar", validarAcesso, cadastrarUsuario);
 app.use("/usuarios/consultar", validarAcesso, consultarUsuario);
