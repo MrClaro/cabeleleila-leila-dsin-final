@@ -10,10 +10,10 @@ class CadastrarServicoController {
 		next: NextFunction,
 	): Promise<void> {
 		try {
-			const { name, price, description, status } = req.body;
+			const { nome, preco, descricao, status } = req.body;
 
 			const cadastroSchema = Joi.object({
-				name: Joi.string()
+				nome: Joi.string()
 					.min(3)
 					.max(100)
 					.pattern(new RegExp("^[a-zA-Z\\s]+$"))
@@ -22,31 +22,31 @@ class CadastrarServicoController {
 					.messages({
 						"string.pattern.base": "O nome deve conter apenas letras.",
 					}),
-				price: Joi.number().positive().precision(2).required().messages({
-					"numer.positive": "O preço deve ser positivo",
+				preco: Joi.number().positive().precision(2).required().messages({
+					"number.positive": "O preço deve ser positivo",
 				}),
-				description: Joi.string().optional(),
+				descricao: Joi.string().optional(),
 				status: Joi.string().optional(),
 			});
 
 			try {
 				const { error } = cadastroSchema.validate({
-					name,
-					price,
-					description,
+					nome,
+					preco,
+					descricao,
 					status,
 				});
 				if (error) {
 					return next(error);
 				}
-				const service = await CadastrarServicoService.cadastrarServico(
-					name,
-					price,
-					description,
+				const servico = await CadastrarServicoService.cadastrarServico(
+					nome,
+					preco,
+					descricao,
 					status,
 				);
-				if (service) {
-					res.status(201).json({ service });
+				if (servico) {
+					res.status(201).json({ servico });
 				}
 			} catch (serviceError) {
 				return next(serviceError);

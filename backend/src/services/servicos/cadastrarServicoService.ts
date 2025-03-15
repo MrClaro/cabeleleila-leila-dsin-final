@@ -1,8 +1,8 @@
 import {
 	PrismaClient,
 	Prisma,
-	status as StatusService,
-	service as Service,
+	status as StatusServico,
+	servico as Servico,
 } from "@prisma/client";
 import createError from "http-errors";
 
@@ -10,37 +10,37 @@ const prisma = new PrismaClient();
 
 class CadastrarServicoService {
 	async cadastrarServico(
-		name: string,
-		price: number,
-		description?: string,
+		nome: string,
+		preco: number,
+		descricao?: string,
 		status?: string,
-	): Promise<Service> {
+	): Promise<Servico> {
 		try {
-			const servicoExistente = await prisma.service.findFirst({
+			const servicoExistente = await prisma.servico.findFirst({
 				where: {
-					name: name,
+					nome: nome,
 				},
 			});
 			if (servicoExistente) {
 				throw createError(409, "Serviço já existente");
 			}
-			let parsedStatus: StatusService = StatusService.SCHEDULED;
+			let statusParseado: StatusServico = StatusServico.AGENDADO;
 			if (status) {
-				const upperStatus = status.toUpperCase();
+				const statusUpper = status.toUpperCase();
 				if (
-					Object.values(StatusService).includes(upperStatus as StatusService)
+					Object.values(StatusServico).includes(statusUpper as StatusServico)
 				) {
-					parsedStatus = upperStatus as StatusService;
+					statusParseado = statusUpper as StatusServico;
 				} else {
 					throw createError(400, "Status inválido.");
 				}
 			}
-			const novoServico = prisma.service.create({
+			const novoServico = prisma.servico.create({
 				data: {
-					name,
-					price,
-					description,
-					status: parsedStatus,
+					nome,
+					preco,
+					descricao,
+					status: statusParseado,
 				},
 			});
 			if (novoServico) {

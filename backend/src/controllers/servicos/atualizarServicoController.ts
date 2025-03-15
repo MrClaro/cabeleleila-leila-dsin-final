@@ -11,16 +11,16 @@ class AtualizarServicoController {
 		next: NextFunction,
 	): Promise<void> {
 		try {
-			const { name, price, description, status } = req.body;
-			const serviceId = parseInt(req.params.id);
-			const serviceExists =
-				await ConsultarServicoController.consultarServicoPorId(serviceId);
+			const { nome, preco, descricao, status } = req.body;
+			const servicoId = parseInt(req.params.id);
+			const servicoExistente =
+				await ConsultarServicoController.consultarServicoPorId(servicoId);
 
-			if (!serviceExists) {
+			if (!servicoExistente) {
 				return next(createError(404, "Serviço não existente"));
 			}
 			const atualizacaoSchema = Joi.object({
-				name: Joi.string()
+				nome: Joi.string()
 					.min(3)
 					.max(100)
 					.pattern(new RegExp("^[a-zA-Z\\s]+$"))
@@ -29,32 +29,32 @@ class AtualizarServicoController {
 					.messages({
 						"string.pattern.base": "O nome deve conter apenas letras.",
 					}),
-				price: Joi.number().positive().precision(2).required().messages({
+				preco: Joi.number().positive().precision(2).required().messages({
 					"numer.positive": "O preço deve ser positivo",
 				}),
-				description: Joi.string().optional(),
+				descricao: Joi.string().optional(),
 				status: Joi.string().optional(),
 			});
 
 			try {
 				const { error } = atualizacaoSchema.validate({
-					name,
-					price,
-					description,
+					nome,
+					preco,
+					descricao,
 					status,
 				});
 				if (error) {
 					return next(error);
 				}
-				const service = await AtualizarServicoService.atualizarServico(
-					serviceId,
-					name,
-					price,
-					description,
+				const servico = await AtualizarServicoService.atualizarServico(
+					servicoId,
+					nome,
+					preco,
+					descricao,
 					status,
 				);
-				if (service) {
-					res.status(201).json({ service });
+				if (servico) {
+					res.status(201).json({ servico });
 				}
 			} catch (serviceError) {
 				return next(serviceError);

@@ -6,8 +6,8 @@ dotenv.config();
 
 interface TokenPayload {
 	id: string;
-	name: string;
-	role: string;
+	usuario: string;
+	cargo: string;
 	exp: number;
 }
 
@@ -27,8 +27,8 @@ export default {
 	 * @param options - Opções adicionais para a geração do token (ex.: expiresIn)
 	 * @returns Uma Promise que resolve para o token JWT assinado
 	 */
-	signAccessToken(
-		payload: { name: string; role: string },
+	assinarAcessoToken(
+		payload: { usuario: string; cargo: string },
 		options?: jwt.SignOptions,
 	): Promise<string> {
 		return new Promise((resolve, reject) => {
@@ -53,7 +53,7 @@ export default {
 	 * @param token - O token JWT a ser verificado
 	 * @returns Uma Promise que resolve para o payload do token se válido
 	 */
-	verifyAccessToken(token: string): Promise<TokenPayload> {
+	verificarAcessoToken(token: string): Promise<TokenPayload> {
 		return new Promise((resolve, reject) => {
 			jwt.verify(
 				token,

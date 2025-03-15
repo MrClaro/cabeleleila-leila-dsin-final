@@ -11,10 +11,10 @@ class CadastrarUsuarioController {
 		next: NextFunction,
 	): Promise<void> {
 		try {
-			const { name, email, password, role, phone } = req.body;
+			const { nome, email, senha, cargo, telefone } = req.body;
 
 			const cadastroSchema = Joi.object({
-				name: Joi.string()
+				nome: Joi.string()
 					.min(3)
 					.max(100)
 					.pattern(new RegExp("^[a-zA-Z\\s]+$"))
@@ -36,7 +36,7 @@ class CadastrarUsuarioController {
 						"string.email.tlds.allow": "O email deve terminar em .com ou .net.",
 						"string.required": "O email é obrigatorio",
 					}),
-				password: Joi.string()
+				senha: Joi.string()
 					.pattern(
 						new RegExp(
 							"^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,30}$",
@@ -48,7 +48,7 @@ class CadastrarUsuarioController {
 							"A senha deve conter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial.",
 						"string.required": "A senha é obrigatoria",
 					}),
-				phone: Joi.string()
+				telefone: Joi.string()
 					.min(9)
 					.pattern(new RegExp("^[0-9]+$"))
 					.required()
@@ -57,31 +57,31 @@ class CadastrarUsuarioController {
 						"string.required": "O número de telefone é obrigatorio",
 					}),
 
-				role: Joi.string().valid("EMPLOYEE", "CLIENT", "ADMIN").optional(),
+				cargo: Joi.string().valid("EMPREGADO", "CLIENTE", "ADMIN").optional(),
 			});
 			const { error } = cadastroSchema.validate({
-				name,
+				nome,
 				email,
-				password,
-				phone,
-				role,
+				senha,
+				telefone,
+				cargo,
 			});
 
 			if (error) {
 				return next(error);
 			}
-			const formatedPhone = formataTelefone(phone);
+			const telefoneFormatado = formataTelefone(telefone);
 
 			try {
-				const user = await CadastrarUsuarioService.cadastrarUsuario(
-					name,
+				const usuario = await CadastrarUsuarioService.cadastrarUsuario(
+					nome,
 					email,
-					password,
-					formatedPhone,
-					role,
+					senha,
+					telefoneFormatado,
+					cargo,
 				);
-				if (user) {
-					res.status(201).json({ user });
+				if (usuario) {
+					res.status(201).json({ usuario });
 				}
 			} catch (serviceError) {
 				return next(serviceError);

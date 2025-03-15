@@ -9,8 +9,8 @@ class ConsultarUsuarioController {
 		next: NextFunction,
 	): Promise<void> {
 		try {
-			const users = await ConsultarUsuarioService.consultarUsuarios();
-			res.status(200).json({ users });
+			const usuarios = await ConsultarUsuarioService.consultarUsuarios();
+			res.status(200).json({ usuarios });
 		} catch (error) {
 			console.log(error);
 			next(createError(500, "Erro interno do servidor"));
@@ -35,15 +35,15 @@ class ConsultarUsuarioController {
 			if (error) {
 				return next(error);
 			}
-			const parsedId = parseInt(id);
-			const user =
-				await ConsultarUsuarioService.consultarUsuarioPorId(parsedId);
+			const idParseado = parseInt(id);
+			const usuario =
+				await ConsultarUsuarioService.consultarUsuarioPorId(idParseado);
 
-			if (!user) {
+			if (!usuario) {
 				return next(createError(404, "Usuário não encontrado"));
 			}
 
-			res.status(200).json({ user });
+			res.status(200).json({ usuario });
 		} catch (error) {
 			if (error instanceof Joi.ValidationError) {
 				return next(createError(400, error.details[0].message));

@@ -1,8 +1,8 @@
 import {
 	PrismaClient,
 	Prisma,
-	appointment as Appointment,
-	status as StatusService,
+	agendamento as Agendamento,
+	status as StatusServico,
 } from "@prisma/client";
 import createError from "http-errors";
 
@@ -10,84 +10,83 @@ const prisma = new PrismaClient();
 
 class AtualizarAgendamentoService {
 	async atualizarAgendamento(
-		appointmentId: number,
-		date?: Date,
+		agendamentoId: number,
+		data?: Date,
 		status?: string,
-		services?: {
-			serviceId: number;
-			quantity?: number;
-			observations?: string;
+		servicos?: {
+			servicoId: number;
+			quantidade?: number;
+			observacoes?: string;
 		}[],
-	): Promise<Appointment> {
+	): Promise<Agendamento> {
 		try {
-			let parsedStatus: StatusService = StatusService.SCHEDULED;
+			let statusParseado: StatusServico = StatusServico.AGENDADO;
 			if (status) {
-				const upperStatus = status.toUpperCase();
+				const statusUpper = status.toUpperCase();
 				if (
-					Object.values(StatusService).includes(upperStatus as StatusService)
+					Object.values(StatusServico).includes(statusUpper as StatusServico)
 				) {
-					parsedStatus = upperStatus as StatusService;
+					statusParseado = statusUpper as StatusServico;
 				} else {
 					throw createError(400, "Status inválido.");
 				}
 			}
 
-			// Meu deus que bgl insuportavel
-			const agendamentoAtualizado = await prisma.appointment.update({
-				where: { id: appointmentId },
+			const agendamentoAtualizado = await prisma.agendamento.update({
+				where: { id: agendamentoId },
 				data: {
-					date_time: date,
-					status: parsedStatus,
-					services: services
+					data_hora: data,
+					status: statusParseado,
+					servicos: servicos
 						? {
-								update: services.map((service) => ({
+								update: servicos.map((servico) => ({
 									where: {
-										appointmentId_serviceId: {
-											appointmentId: appointmentId,
-											serviceId: service.serviceId,
+										agendamentoId_servicoId: {
+											agendamentoId: agendamentoId,
+											servicoId: servico.servicoId,
 										},
 									},
 									data: {
-										quantity: service.quantity,
-										observations: service.observations,
+										quantidade: servico.quantidade,
+										observacoes: servico.observacoes,
 									},
 								})),
 							}
 						: undefined,
 				},
 				include: {
-					services: true,
+					servicos: true,
 				},
 			});
-
-			if (services) {
-				for (const service of services) {
-					const existingService = agendamentoAtualizado.services.find(
-						(s) => s.serviceId === service.serviceId,
+			if (servicos) {
+				for (const servico of servicos) {
+					const servicoExistente = agendamentoAtualizado.servicos.find(
+						(s) => s.servicoId === servico.servicoId,
 					);
 
-					if (!existingService) {
-						await prisma.appointmentService.create({
+					if (!servicoExistente) {
+						await prisma.agendamentoServico.create({
 							data: {
-								appointmentId: appointmentId,
-								serviceId: service.serviceId,
-								quantity: service.quantity,
-								observations: service.observations,
+								agendamentoId: agendamentoId,
+								servicoId: servico.servicoId,
+								quantidade: servico.quantidade,
+								observacoes: servico.observacoes,
 							},
 						});
 					}
 				}
 			}
 
-			return await prisma.appointment.findUniqueOrThrow({
+			return await prisma.agendamento.findUniqueOrThrow({
 				where: {
-					id: appointmentId,
+					id: agendamentoId,
 				},
 				include: {
-					services: true,
+					servicos: true,
 				},
 			});
 		} catch (error) {
+			console.log(error);
 			if (error instanceof Prisma.PrismaClientKnownRequestError) {
 				throw createError(500, "Erro ao acessar o banco de dados.");
 			} else if (error instanceof createError.HttpError) {

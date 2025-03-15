@@ -1,8 +1,8 @@
 import {
 	PrismaClient,
 	Prisma,
-	role as UserRole,
-	user as User,
+	cargo as CargoUsuario,
+	usuario as Usuario,
 } from "@prisma/client";
 import createError from "http-errors";
 import bcrypt from "bcryptjs";
@@ -11,38 +11,38 @@ const prisma = new PrismaClient();
 
 class CadastrarUsuarioService {
 	async cadastrarUsuario(
-		name: string,
+		nome: string,
 		email: string,
-		password: string,
-		phone: string,
-		role?: string,
-	): Promise<User> {
+		senha: string,
+		telefone: string,
+		cargo?: string,
+	): Promise<Usuario> {
 		try {
-			const usuarioExistente = await prisma.user.findUnique({
+			const usuarioExistente = await prisma.usuario.findUnique({
 				where: { email },
 			});
 			if (usuarioExistente) {
 				throw createError(409, "Usuario com esse email já existente ");
 			}
 
-			let parsedRole: UserRole = UserRole.CLIENT;
-			if (role) {
-				const upperRole = role.toUpperCase();
-				if (Object.values(UserRole).includes(upperRole as UserRole)) {
-					parsedRole = upperRole as UserRole;
+			let cargoParseado: CargoUsuario = CargoUsuario.CLIENTE;
+			if (cargo) {
+				const cargoUpper = cargo.toUpperCase();
+				if (Object.values(CargoUsuario).includes(cargoUpper as CargoUsuario)) {
+					cargoParseado = cargoUpper as CargoUsuario;
 				} else {
 					throw createError(400, "Role inválida.");
 				}
 			}
-			const hashedPassword = await bcrypt.hash(password, 10);
+			const senhaHasheada = await bcrypt.hash(senha, 10);
 
-			const novoUsuario = prisma.user.create({
+			const novoUsuario = prisma.usuario.create({
 				data: {
-					name,
+					nome,
 					email,
-					password: hashedPassword,
-					phone,
-					role: parsedRole,
+					senha: senhaHasheada,
+					telefone,
+					cargo: cargoParseado,
 				},
 			});
 			if (novoUsuario) {

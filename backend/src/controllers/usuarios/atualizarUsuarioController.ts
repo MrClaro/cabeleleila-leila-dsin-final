@@ -5,25 +5,25 @@ import formataTelefone from "../../tools/formataTelefone";
 import ConsultarUsuarioService from "../../services/usuarios/consultarUsuarioService";
 import AtualizarUsuarioService from "../../services/usuarios/atualizarUsuarioService";
 
-class AtualizarUsuarioControllerr {
+class AtualizarUsuarioController {
 	async validarUsuario(
 		req: Request,
 		res: Response,
 		next: NextFunction,
 	): Promise<void> {
 		try {
-			const { name, email, password, role, phone } = req.body;
-			const userId = parseInt(req.params.id);
+			const { nome, email, senha, cargo, telefone } = req.body;
+			const usuarioId = parseInt(req.params.id);
 
-			const userExists =
-				await ConsultarUsuarioService.consultarUsuarioPorId(userId);
+			const usuarioExistente =
+				await ConsultarUsuarioService.consultarUsuarioPorId(usuarioId);
 
-			if (!userExists) {
+			if (!usuarioExistente) {
 				return next(createError(404, "Usuário não existente"));
 			}
 
 			const atualizaSchema = Joi.object({
-				name: Joi.string()
+				nome: Joi.string()
 					.min(3)
 					.max(100)
 					.pattern(new RegExp("^[a-zA-Z\\s]+$"))
@@ -45,7 +45,7 @@ class AtualizarUsuarioControllerr {
 						"string.email.tlds.allow": "O email deve terminar em .com ou .net.",
 						"string.required": "O email é obrigatorio",
 					}),
-				password: Joi.string()
+				senha: Joi.string()
 					.pattern(
 						new RegExp(
 							"^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,30}$",
@@ -57,7 +57,7 @@ class AtualizarUsuarioControllerr {
 							"A senha deve conter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial.",
 						"string.required": "A senha é obrigatoria",
 					}),
-				phone: Joi.string()
+				telefone: Joi.string()
 					.min(9)
 					.pattern(new RegExp("^[0-9]+$"))
 					.optional()
@@ -65,38 +65,39 @@ class AtualizarUsuarioControllerr {
 						"string.min": "O telefone deve conter pelo menos 9 dígitos.",
 						"string.required": "O número de telefone é obrigatorio",
 					}),
-				role: Joi.string().valid("EMPLOYEE", "CLIENT", "ADMIN").optional(),
+				cargo: Joi.string().valid("EMPREGADO", "CLIENTE", "ADMIN").optional(),
 			});
 
 			const { error } = atualizaSchema.validate({
-				name,
+				nome,
 				email,
-				password,
-				phone,
-				role,
+				senha,
+				telefone,
+				cargo,
 			});
 
 			if (error) {
 				return next(error);
 			}
 
-			let formatedPhone = phone;
-			if (phone) {
-				formatedPhone = formataTelefone(phone);
+			let telefoneFormatado = telefone;
+			if (telefone) {
+				telefoneFormatado = formataTelefone(telefone);
 			}
 
 			try {
-				const updatedUser = await AtualizarUsuarioService.atualizarUsuario(
-					userId,
-					name,
-					email,
-					password,
-					formatedPhone,
-					role,
-				);
+				const usuarioAtualizado =
+					await AtualizarUsuarioService.atualizarUsuario(
+						usuarioId,
+						nome,
+						email,
+						senha,
+						telefoneFormatado,
+						cargo,
+					);
 
-				if (updatedUser) {
-					res.status(200).json({ updatedUser });
+				if (usuarioAtualizado) {
+					res.status(200).json({ usuarioAtualizado });
 				} else {
 					return next(createError(500, "Falha ao atualizar o usuário"));
 				}
@@ -109,4 +110,4 @@ class AtualizarUsuarioControllerr {
 	}
 }
 
-export default new AtualizarUsuarioControllerr();
+export default new AtualizarUsuarioController();

@@ -1,4 +1,4 @@
-import { Prisma, PrismaClient, service as Service } from "@prisma/client";
+import { Prisma, PrismaClient, servico as Servico } from "@prisma/client";
 import createError from "http-errors";
 
 const prisma = new PrismaClient();
@@ -7,11 +7,11 @@ class ConsultarServicoService {
 	async consultarServicos(
 		skip?: number,
 		take?: number,
-		where?: Prisma.userWhereInput,
-	): Promise<Service[]> {
+		where?: Prisma.servicoWhereInput,
+	): Promise<Servico[]> {
 		try {
-			const services = prisma.service.findMany();
-			return services;
+			const servicos = prisma.servico.findMany();
+			return servicos;
 		} catch (error) {
 			if (error instanceof Prisma.PrismaClientKnownRequestError) {
 				throw createError(500, "Erro ao acessar o banco de dados.");
@@ -23,17 +23,17 @@ class ConsultarServicoService {
 			}
 		}
 	}
-	async consultarServicoPorId(id: number): Promise<Service> {
+	async consultarServicoPorId(id: number): Promise<Servico> {
 		try {
-			const service = prisma.service.findUniqueOrThrow({
+			const servico = prisma.servico.findUniqueOrThrow({
 				where: {
 					id: id,
 				},
 			});
-			if (!service) {
+			if (!servico) {
 				throw createError(404, "Serviço não encontrado");
 			}
-			return service;
+			return servico;
 		} catch (error) {
 			if (error instanceof Prisma.PrismaClientKnownRequestError) {
 				throw createError(500, "Erro ao acessar o banco de dados.");

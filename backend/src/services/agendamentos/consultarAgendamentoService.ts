@@ -1,7 +1,7 @@
 import {
 	Prisma,
 	PrismaClient,
-	appointment as Appointment,
+	agendamento as Agendamento,
 } from "@prisma/client";
 import createError from "http-errors";
 
@@ -11,15 +11,15 @@ class ConsultarAgendamentoService {
 	async consultarAgendamentos(
 		skip?: number,
 		take?: number,
-		where?: Prisma.userWhereInput,
-	): Promise<Appointment[]> {
+		where?: Prisma.agendamentoWhereInput,
+	): Promise<Agendamento[]> {
 		try {
-			const appointments = prisma.appointment.findMany({
+			const agendamentos = prisma.agendamento.findMany({
 				include: {
-					services: true,
+					servicos: true,
 				},
 			});
-			return appointments;
+			return agendamentos;
 		} catch (error) {
 			if (error instanceof Prisma.PrismaClientKnownRequestError) {
 				throw createError(500, "Erro ao acessar o banco de dados.");
@@ -31,20 +31,20 @@ class ConsultarAgendamentoService {
 			}
 		}
 	}
-	async consultarAgendamentoPorId(id: number): Promise<Appointment> {
+	async consultarAgendamentoPorId(id: number): Promise<Agendamento> {
 		try {
-			const appointment = prisma.appointment.findUniqueOrThrow({
+			const agendamento = prisma.agendamento.findUniqueOrThrow({
 				where: {
 					id: id,
 				},
 				include: {
-					services: true,
+					servicos: true,
 				},
 			});
-			if (!appointment) {
+			if (!agendamento) {
 				throw createError(404, "Agendamento não encontrado");
 			}
-			return appointment;
+			return agendamento;
 		} catch (error) {
 			if (error instanceof Prisma.PrismaClientKnownRequestError) {
 				throw createError(500, "Erro ao acessar o banco de dados.");

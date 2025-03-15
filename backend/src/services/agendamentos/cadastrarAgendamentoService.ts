@@ -1,7 +1,7 @@
 import {
 	Prisma,
 	PrismaClient,
-	appointment as Appointment,
+	agendamento as Agendamento,
 	status as Status,
 } from "@prisma/client";
 import createError from "http-errors";
@@ -10,42 +10,46 @@ const prisma = new PrismaClient();
 
 class CadastrarAgendamentoService {
 	async cadastrarAgendamento(
-		client_id: number,
-		user_id: number,
+		cliente_id: number,
+		usuario_id: number,
 		status: string,
-		formatedDate: Date,
-		services: { serviceId: number; quantity?: number; observations?: string }[],
-	): Promise<Appointment> {
+		data: Date,
+		servicos: {
+			servicoId: number;
+			quantidade?: number;
+			observacoes?: string;
+		}[],
+	): Promise<Agendamento> {
 		try {
-			const clienteExistente = await prisma.user.findUniqueOrThrow({
+			const clienteExistente = await prisma.usuario.findUniqueOrThrow({
 				where: {
-					id: client_id,
+					id: cliente_id,
 				},
 			});
 			if (!clienteExistente) {
 				throw createError(404, "Cliente com esse id não existente");
 			}
-			let parsedStatus: Status = Status.SCHEDULED;
+			let statusParseado: Status = Status.AGENDADO;
 			if (status) {
-				const upperStatus = status.toUpperCase();
-				if (Object.values(Status).includes(upperStatus as Status)) {
-					parsedStatus = upperStatus as Status;
+				const statusUpper = status.toUpperCase();
+				if (Object.values(Status).includes(statusUpper as Status)) {
+					statusParseado = statusUpper as Status;
 				} else {
 					throw createError(400, "Status inválido.");
 				}
 			}
 
-			const novoAgendamento = await prisma.appointment.create({
+			const novoAgendamento = await prisma.agendamento.create({
 				data: {
-					client_id,
-					user_id,
-					status: parsedStatus,
-					date_time: formatedDate,
-					services: {
-						create: services.map((service) => ({
-							service: { connect: { id: service.serviceId } },
-							quantity: service.quantity,
-							observations: service.observations,
+					cliente_id,
+					usuario_id,
+					status: statusParseado,
+					data_hora: data,
+					servicos: {
+						create: servicos.map((servico) => ({
+							servico: { connect: { id: servico.servicoId } },
+							quantidade: servico.quantidade,
+							observacoes: servico.observacoes,
 						})),
 					},
 				},

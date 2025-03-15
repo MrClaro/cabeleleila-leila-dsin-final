@@ -11,8 +11,8 @@ class ConsultarServicoController {
 	): Promise<void> {
 		try {
 			try {
-				const services = await ConsultarServicoService.consultarServicos();
-				res.status(200).json({ services });
+				const servicos = await ConsultarServicoService.consultarServicos();
+				res.status(200).json({ servicos });
 			} catch (serviceError) {
 				return next(serviceError);
 			}
@@ -39,13 +39,13 @@ class ConsultarServicoController {
 			if (error) {
 				return next(error);
 			}
-			const parsedId = parseInt(id);
-			const service =
-				await ConsultarServicoService.consultarServicoPorId(parsedId);
-			if (!service) {
+			const idParseado = parseInt(id);
+			const servico =
+				await ConsultarServicoService.consultarServicoPorId(idParseado);
+			if (!servico) {
 				return next(createError(404, "Serviço não encontrado"));
 			}
-			res.status(200).json({ service });
+			res.status(200).json({ servico });
 		} catch (error) {
 			if (error instanceof Joi.ValidationError) {
 				return next(createError(400, error.details[0].message));

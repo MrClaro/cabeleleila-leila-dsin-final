@@ -1,8 +1,8 @@
 import {
 	PrismaClient,
 	Prisma,
-	user as User,
-	role as UserRole,
+	usuario as Usuario,
+	cargo as CargoUsuario,
 } from "@prisma/client";
 import createError from "http-errors";
 import bcrypt from "bcryptjs";
@@ -11,38 +11,36 @@ const prisma = new PrismaClient();
 
 class AtualizarUsuarioService {
 	async atualizarUsuario(
-		userId: number,
-		name?: string,
+		usuarioId: number,
+		nome?: string,
 		email?: string,
-		password?: string,
-		phone?: string,
-		role?: string,
-	): Promise<User> {
+		senha?: string,
+		telefone?: string,
+		cargo?: string,
+	): Promise<Usuario> {
 		try {
-			let parsedRole: UserRole = UserRole.CLIENT;
-			if (role) {
-				const upperRole = role.toUpperCase();
-				if (Object.values(UserRole).includes(upperRole as UserRole)) {
-					parsedRole = upperRole as UserRole;
+			let cargoParseado: CargoUsuario = CargoUsuario.CLIENTE;
+			if (cargo) {
+				const cargoUpper = cargo.toUpperCase();
+				if (Object.values(CargoUsuario).includes(cargoUpper as CargoUsuario)) {
+					cargoParseado = cargoUpper as CargoUsuario;
 				} else {
 					throw createError(400, "Role inválida.");
 				}
 			}
 
-			const hashedPassword = password
-				? await bcrypt.hash(password, 10)
-				: password;
+			const senhaHasheada = senha ? await bcrypt.hash(senha, 10) : senha;
 
-			const usuarioAtualizado = await prisma.user.update({
+			const usuarioAtualizado = await prisma.usuario.update({
 				where: {
-					id: userId,
+					id: usuarioId,
 				},
 				data: {
-					name,
+					nome,
 					email,
-					password: hashedPassword,
-					phone,
-					role: parsedRole,
+					senha: senhaHasheada,
+					telefone,
+					cargo: cargoParseado,
 				},
 			});
 			return usuarioAtualizado;

@@ -12,66 +12,69 @@ class AtualizarAgendamentoController {
 		next: NextFunction,
 	): Promise<void> {
 		try {
-			const { date_time, services, status } = req.body;
-			const appointmentId = parseInt(req.params.id);
+			const { data_hora, servicos, status } = req.body;
+			const agendamentoId = parseInt(req.params.id);
 
-			const appointmentExists =
+			const agendamentoExistente =
 				await ConsultarAgendamentoService.consultarAgendamentoPorId(
-					appointmentId,
+					agendamentoId,
 				);
 
-			if (!appointmentExists) {
+			if (!agendamentoExistente) {
 				return next(createError(404, "Agendamento não existente"));
 			}
 
 			const atualizaSchema = Joi.object({
-				date_time: Joi.date().min("01-01-2025").optional().messages({
+				data_hora: Joi.date().min("01-01-2025").optional().messages({
 					"date.min": "A data minima aceita é 01/01/2025",
 				}),
-				services: Joi.array()
+				servicos: Joi.array()
 					.items(
 						Joi.object({
-							serviceId: Joi.number().required(),
-							quantity: Joi.number().optional(),
-							observations: Joi.string().optional(),
+							servicoId: Joi.number().required(),
+							quantidade: Joi.number().optional(),
+							observacoes: Joi.string().optional().messages({
+								"number.required": "o id do serviço é obrigatorio",
+							}),
 						}),
 					)
 					.optional(),
 			});
 
 			const { error } = atualizaSchema.validate({
-				date_time,
-				services,
+				data_hora,
+				servicos,
 			});
 
 			if (error) {
 				return next(error);
 			}
 
-			const formatedDate = formataData(date_time);
-			if (!formatedDate) {
+			const dataFormatada = formataData(data_hora);
+			if (!dataFormatada) {
 				return next(
 					createError(400, "Data inválida ou fora do intervalo permitido."),
 				);
 			}
 			try {
-				if (formatedDate) {
-					const dateObject = new Date(formatedDate);
-					const appointment =
+				if (dataFormatada) {
+					const dataFinal = new Date(dataFormatada);
+					const agendamento =
 						await AtualizarAgendamentoService.atualizarAgendamento(
-							appointmentId,
-							dateObject,
+							agendamentoId,
+							dataFinal,
 							status,
-							services,
+							servicos,
 						);
-					if (appointment) {
-						res.status(201).json({ response: appointment });
+					if (agendamento) {
+						res.status(201).json({ response: agendamento });
 					}
 				}
 			} catch (serviceError) {
 				return next(serviceError);
 			}
 		} catch (error) {
+			console.log(error);
 			return next(createError(500, "Erro interno do servidor"));
 		}
 	}

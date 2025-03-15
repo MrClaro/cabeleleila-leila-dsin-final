@@ -1,51 +1,58 @@
 import { Router, Request, Response } from "express";
 import jwt from "../../utils/jwt";
 import createError from "http-errors";
-import { role as UserRole } from "@prisma/client";
+import { cargo as CargoUsuario } from "@prisma/client";
 
 const router = Router();
 
 interface TokenPayload {
-	name: string;
-	role: UserRole;
+	usuario: string;
+	cargo: CargoUsuario;
 }
 
 router.post("/", async (req: Request, res: Response): Promise<void> => {
 	try {
-		const { name, role } = req.body;
+		const { usuario, cargo } = req.body;
 
-		if (!name || typeof name !== "string" || name.trim() === "") {
+		if (!usuario || typeof usuario !== "string" || usuario.trim() === "") {
 			throw createError.BadRequest(
 				"O campo 'usuario' é obrigatório e deve ser do tipo string, sendo não vazia.",
 			);
 		}
 
-		if (!role || typeof role !== "string" || role.trim() === "") {
+		if (!cargo || typeof cargo !== "string" || cargo.trim() === "") {
 			throw createError.BadRequest(
 				"O campo 'cargo' é obrigatório e deve ser do tipo string, sendo não vazia.",
 			);
 		}
 
-		if (!Object.values(UserRole).includes(role as UserRole)) {
+		if (!Object.values(CargoUsuario).includes(cargo as CargoUsuario)) {
 			throw createError.BadRequest("Cargo inválido.");
 		}
 
-		const token = await jwt.signAccessToken(
-			{ name, role: role as UserRole } as TokenPayload,
+		const token = await jwt.assinarAcessoToken(
+			{ usuario: usuario, cargo: cargo as CargoUsuario } as TokenPayload,
 			{
 				expiresIn: "1h",
 			},
 		);
 
+		const createdAt = new Date().toISOString();
 		res.status(200).json({
 			success: true,
-			token,
+			message: "Autenticação bem-sucedida",
+			data: {
+				token: token,
+				expiresIn: "1h",
+				createdAt: createdAt,
+			},
 		});
 	} catch (error) {
 		if (createError.isHttpError(error)) {
 			res.status(error.status).json({
 				success: false,
-				message: error.message,
+				message: "Falha na autenticação",
+				error: error.message,
 			});
 		} else {
 			console.error("Erro ao gerar token:", error);

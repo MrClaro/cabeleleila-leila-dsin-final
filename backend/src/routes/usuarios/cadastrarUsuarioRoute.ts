@@ -10,9 +10,9 @@ router.post(
 	"/",
 	async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 		try {
-			const { name, email, password } = req.body;
+			const { nome, email, senha } = req.body;
 
-			if (!name || !email || !password) {
+			if (!nome || !email || !senha) {
 				res.status(400).json({
 					response: "Formato da requisição inválida!",
 				});

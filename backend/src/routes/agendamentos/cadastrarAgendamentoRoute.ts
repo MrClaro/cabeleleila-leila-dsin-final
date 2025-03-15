@@ -9,8 +9,8 @@ router.post(
 	"/",
 	async (req: Request, res: Response, next: NextFunction): Promise<void> => {
 		try {
-			const { user_id, client_id, date_time, services } = req.body;
-			if (!user_id || !client_id || !date_time || services.length == 0) {
+			const { usuario_id, cliente_id, data_hora, servicos } = req.body;
+			if (!usuario_id || !cliente_id || !data_hora || servicos.length == 0) {
 				res.status(400).json({
 					Response: "Formato da requisição inválida!",
 				});

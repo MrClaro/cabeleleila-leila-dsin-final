@@ -11,62 +11,64 @@ class CadastrarAgendamentoController {
 		next: NextFunction,
 	): Promise<void> {
 		try {
-			const { client_id, user_id, status, date_time, services } = req.body;
+			const { cliente_id, usuario_id, status, data_hora, servicos } = req.body;
 
 			const cadastroSchema = Joi.object({
-				client_id: Joi.number().positive().required().messages({
+				cliente_id: Joi.number().positive().required().messages({
 					"number.min": "O id deve ser maior que 0",
 					"number.required": "O id do cliente é obrigatorio",
 				}),
-				date_time: Joi.date().min("01-01-2025").required().messages({
+				data_hora: Joi.date().min("01-01-2025").required().messages({
 					"date.min": "A data minima aceita é 01/01/2025",
 				}),
-				services: Joi.array()
+				servicos: Joi.array()
 					.items(
 						Joi.object({
-							serviceId: Joi.number().required(),
-							quantity: Joi.number().optional(),
-							observations: Joi.string().optional(),
+							servicoId: Joi.number().required(),
+							quantidade: Joi.number().optional(),
+							observacoes: Joi.string().optional().messages({
+								"number.required": "o id do serviço é obrigatorio",
+							}),
 						}),
 					)
 					.required(),
-				user_id: Joi.number().integer().positive().required().messages({
+				usuario_id: Joi.number().integer().positive().required().messages({
 					"number.required": "O id do usuário é obrigatorio",
 				}),
 			});
 
 			const { error } = cadastroSchema.validate({
-				client_id,
-				date_time,
-				services,
-				user_id,
+				cliente_id,
+				data_hora,
+				servicos,
+				usuario_id,
 			});
 
 			if (error) {
 				return next(error);
 			}
 
-			const formatedDate = formataData(date_time);
-			if (!formatedDate) {
+			const dataFormatada = formataData(data_hora);
+			if (!dataFormatada) {
 				return next(
 					createError(400, "Data inválida ou fora do intervalo permitido."),
 				);
 			}
-			const hasUserId = !user_id ? null : user_id;
+			const temUsuarioId = usuario_id ? usuario_id : null;
 
 			try {
-				if (formatedDate) {
-					const dateObject = new Date(formatedDate);
-					const appointment =
+				if (dataFormatada) {
+					const dataFinal = new Date(dataFormatada);
+					const agendamento =
 						await CadastrarAgendamentoService.cadastrarAgendamento(
-							client_id,
-							hasUserId,
+							cliente_id,
+							temUsuarioId,
 							status,
-							dateObject,
-							services,
+							dataFinal,
+							servicos,
 						);
-					if (appointment) {
-						res.status(201).json({ response: appointment });
+					if (agendamento) {
+						res.status(201).json({ response: agendamento });
 					}
 				}
 			} catch (serviceError) {

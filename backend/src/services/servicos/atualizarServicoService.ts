@@ -1,8 +1,8 @@
 import {
 	PrismaClient,
 	Prisma,
-	service as Service,
-	status as StatusService,
+	servico as Servico,
+	status as StatusServico,
 } from "@prisma/client";
 import createError from "http-errors";
 
@@ -10,34 +10,34 @@ const prisma = new PrismaClient();
 
 class AtualizarServicoService {
 	async atualizarServico(
-		serviceId: number,
-		name?: string,
-		price?: number,
-		description?: string,
+		servicoId: number,
+		nome?: string,
+		preco?: number,
+		descricao?: string,
 		status?: string,
-	): Promise<Service> {
+	): Promise<Servico> {
 		try {
-			let parsedStatus: StatusService = StatusService.SCHEDULED;
+			let statusParseado: StatusServico = StatusServico.AGENDADO;
 			if (status) {
-				const upperStatus = status.toUpperCase();
+				const statusUpper = status.toUpperCase();
 				if (
-					Object.values(StatusService).includes(upperStatus as StatusService)
+					Object.values(StatusServico).includes(statusUpper as StatusServico)
 				) {
-					parsedStatus = upperStatus as StatusService;
+					statusParseado = statusUpper as StatusServico;
 				} else {
 					throw createError(400, "Status inválido.");
 				}
 			}
 
-			const servicoAtualizado = await prisma.service.update({
+			const servicoAtualizado = await prisma.servico.update({
 				where: {
-					id: serviceId,
+					id: servicoId,
 				},
 				data: {
-					name,
-					price,
-					description,
-					status: parsedStatus,
+					nome,
+					preco,
+					descricao,
+					status: statusParseado,
 				},
 			});
 			return servicoAtualizado;

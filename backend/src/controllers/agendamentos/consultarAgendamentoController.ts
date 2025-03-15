@@ -11,9 +11,9 @@ class ConsultarAgendamentoControllerr {
 	): Promise<void> {
 		try {
 			try {
-				const appointments =
+				const agendamentos =
 					await ConsultarAgendamentoService.consultarAgendamentos();
-				res.status(200).json({ appointments });
+				res.status(200).json({ agendamentos });
 			} catch (serviceError) {
 				return next(serviceError);
 			}
@@ -40,13 +40,13 @@ class ConsultarAgendamentoControllerr {
 			if (error) {
 				return next(error);
 			}
-			const parsedId = parseInt(id);
-			const appointment =
-				await ConsultarAgendamentoService.consultarAgendamentoPorId(parsedId);
-			if (!appointment) {
+			const idParseado = parseInt(id);
+			const agendamento =
+				await ConsultarAgendamentoService.consultarAgendamentoPorId(idParseado);
+			if (!agendamento) {
 				return next(createError(404, "Agendamento não encontrado"));
 			}
-			res.status(200).json({ appointment });
+			res.status(200).json({ agendamento });
 		} catch (error) {
 			if (error instanceof Joi.ValidationError) {
 				return next(createError(400, error.details[0].message));

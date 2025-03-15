@@ -5,8 +5,8 @@ import { TokenExpiredError, JsonWebTokenError } from "jsonwebtoken";
 
 interface TokenPayload {
 	id: string;
-	name: string;
-	role: string;
+	usuario: string;
+	cargo: string;
 	exp: number;
 }
 
@@ -43,20 +43,21 @@ const auth = async (
 		}
 
 		try {
-			const user = await jwt.verifyAccessToken(token);
+			const usuario = await jwt.verificarAcessoToken(token);
 
 			if (
-				typeof user === "object" &&
-				"name" in user &&
-				"exp" in user &&
-				"role" in user
+				typeof usuario === "object" &&
+				"usuario" in usuario &&
+				"exp" in usuario &&
+				"cargo" in usuario
 			) {
-				req.dados = user as TokenPayload;
+				req.dados = usuario as TokenPayload;
 				return next();
 			}
 
 			throw createError.Unauthorized("Token inválido");
 		} catch (error) {
+			console.log("Erro do token: ", error);
 			if (error instanceof TokenExpiredError) {
 				next(createError.Unauthorized("Token expirado"));
 			} else if (error instanceof JsonWebTokenError) {

@@ -1,69 +1,67 @@
 generator client {
-  provider = "prisma-client-js"
+    provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+    provider = "mysql"
+    url = env("DATABASE_URL")
 }
 
 // Usuário
-model user {
-  id           Int           @id @default(autoincrement())
-  name         String
-  email        String        @unique
-  password     String
-  phone        String?
-  role         role          @default(CLIENT)
-  appointments appointment[]
-  created_at   DateTime      @default(now())
-  updated_at   DateTime      @updatedAt
+model usuario {
+    id           Int                @id @default(autoincrement())
+    nome         String
+    email        String             @unique
+    senha        String
+    telefone     String?
+    cargo        cargo              @default(CLIENTE)
+    agendamento  agendamento[]
+    criado_em    DateTime           @default(now())
+    atualizado_em DateTime           @updatedAt
 }
 
 // Cargo
-enum role {
-  CLIENT
-  EMPLOYEE
-  ADMIN
+enum cargo {
+    CLIENTE
+    EMPREGADO
+    ADMIN
 }
 
 // Agendamento
-model appointment {
-  id           Int                  @id @default(autoincrement())
-  client_id    Int
-  user_id      Int
-  user         user                 @relation(fields: [user_id], references: [id])
-  date_time    DateTime             @default(now())
-  services     appointmentService[]
-  status       status               @default(SCHEDULED)
-  observations String?
+model agendamento {
+    id                    Int                  @id @default(autoincrement())
+    usuario_id            Int
+    usuario               usuario              @relation(fields: [usuario_id], references: [id])
+    data_hora             DateTime             @default(now())
+    servicos              agendamentoServico[]
+    status                status               @default(AGENDADO)
+    observacoes_agendamento String?
 }
 
 // Serviço
-model service {
-  id           Int                  @id @default(autoincrement())
-  name         String
-  description  String?
-  price        Float
-  appointments appointmentService[]
-  status       status               @default(SCHEDULED)
+model servico {
+    id                    Int                  @id @default(autoincrement())
+    nome                  String
+    descricao             String?
+    preco                 Float
+    agendamentos          agendamentoServico[]
+    status       status               @default(AGENDADO)
 }
 
-// Intermediario entre serviço e agendamento - quebrar mutios pra muitos
-model appointmentService {
-  appointmentId Int
-  appointment   appointment @relation(fields: [appointmentId], references: [id])
-  serviceId     Int
-  service       service     @relation(fields: [serviceId], references: [id])
-  quantity      Int?
-  observations  String?
+// Intermediário entre serviço e agendamento - quebrar muitos para muitos
+model agendamentoServico {
+    agendamentoId           Int
+    agendamento             agendamento        @relation(fields: [agendamentoId], references: [id])
+    servicoId               Int
+    servico                 servico            @relation(fields: [servicoId], references: [id])
+    quantidade              Int?
+    observacoes_servico_agendamento String?
 
-  @@id([appointmentId, serviceId])
+    @@id([agendamentoId, servicoId])
 }
 
 enum status {
-  SCHEDULED
-  CONFIRMED
-  COMPLETED
-  CANCELLED
+    AGENDADO
+    COMPLETO
+    CANCELADO
 }
