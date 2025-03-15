@@ -45,5 +45,27 @@ class ConsultarUsuarioService {
 			}
 		}
 	}
+	async consultarUsuarioPorEmail(email: string): Promise<Usuario> {
+		try {
+			const usuario = prisma.usuario.findUniqueOrThrow({
+				where: {
+					email: email,
+				},
+			});
+			if (!usuario) {
+				throw createError(404, "Usuário não encontrado");
+			}
+			return usuario;
+		} catch (error) {
+			if (error instanceof Prisma.PrismaClientKnownRequestError) {
+				throw createError(500, "Erro ao acessar o banco de dados.");
+			} else if (error instanceof createError.HttpError) {
+				throw error;
+			} else {
+				console.error("Erro interno:", error);
+				throw createError(500, "Erro interno do servidor.");
+			}
+		}
+	}
 }
 export default new ConsultarUsuarioService();
