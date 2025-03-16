@@ -12,7 +12,7 @@ class AtualizarAgendamentoController {
 		next: NextFunction,
 	): Promise<void> {
 		try {
-			const { data_hora, servicos, status } = req.body;
+			const { data_hora, servicos, observacoes, status } = req.body;
 			const agendamentoId = parseInt(req.params.id);
 
 			const agendamentoExistente =
@@ -25,50 +25,63 @@ class AtualizarAgendamentoController {
 			}
 
 			const atualizaSchema = Joi.object({
-				data_hora: Joi.date().min("01-01-2025").optional().messages({
-					"date.min": "A data minima aceita é 01/01/2025",
+				data_hora: Joi.date().min("now").optional().messages({
+					"date.min": "A data minima aceita é a data atual",
 				}),
 				servicos: Joi.array()
 					.items(
 						Joi.object({
 							servicoId: Joi.number().required(),
 							quantidade: Joi.number().optional(),
-							observacoes: Joi.string().optional().messages({
-								"number.required": "o id do serviço é obrigatorio",
-							}),
+							observacoes_servico_agendamento: Joi.string().optional(),
+							status: Joi.string().optional(),
 						}),
 					)
 					.optional(),
 			});
 
-			const { error } = atualizaSchema.validate({
-				data_hora,
-				servicos,
-			});
+			const { error } = atualizaSchema.validate({ data_hora, servicos });
 
 			if (error) {
 				return next(error);
 			}
 
 			const dataFormatada = formataData(data_hora);
-			if (!dataFormatada) {
+			if (!dataFormatada || isNaN(new Date(dataFormatada).getTime())) {
 				return next(
 					createError(400, "Data inválida ou fora do intervalo permitido."),
 				);
 			}
+
+			const dataCadastrada = agendamentoExistente.data_hora;
+			const dataAtual = new Date();
+
+			const dataLimite = new Date(dataCadastrada);
+			dataLimite.setDate(dataLimite.getDate() - 2);
+
+			if (dataAtual > dataLimite) {
+				return next(
+					createError(
+						400,
+						"Apenas é permitido a alteração da data do agendamento em até 2 dias antes do agendamento, por favor entre em contato pelo telefone",
+					),
+				);
+			}
+
 			try {
-				if (dataFormatada) {
-					const dataFinal = new Date(dataFormatada);
-					const agendamento =
-						await AtualizarAgendamentoService.atualizarAgendamento(
-							agendamentoId,
-							dataFinal,
-							status,
-							servicos,
-						);
-					if (agendamento) {
-						res.status(201).json({ response: agendamento });
-					}
+				const dataFinal = new Date(dataFormatada);
+
+				const agendamento =
+					await AtualizarAgendamentoService.atualizarAgendamento(
+						agendamentoId,
+						dataFinal,
+						observacoes,
+						status,
+						servicos,
+					);
+
+				if (agendamento) {
+					res.status(200).json({ response: agendamento });
 				}
 			} catch (serviceError) {
 				return next(serviceError);
