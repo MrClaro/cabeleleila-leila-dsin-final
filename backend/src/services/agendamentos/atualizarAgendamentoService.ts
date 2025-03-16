@@ -2,7 +2,8 @@ import {
 	PrismaClient,
 	Prisma,
 	agendamento as Agendamento,
-	status as StatusServico,
+	status as Status,
+	agendamentoServico as AgendamentoServico,
 } from "@prisma/client";
 import createError from "http-errors";
 
@@ -12,21 +13,22 @@ class AtualizarAgendamentoService {
 	async atualizarAgendamento(
 		agendamentoId: number,
 		data?: Date,
+		observacoes?: string,
 		status?: string,
 		servicos?: {
 			servicoId: number;
 			quantidade?: number;
-			observacoes?: string;
+			observacoes_servico_agendamento?: string;
+			status?: string;
 		}[],
 	): Promise<Agendamento> {
 		try {
-			let statusParseado: StatusServico = StatusServico.AGENDADO;
+			let statusParseado: Status = Status.AGENDADO;
+
 			if (status) {
 				const statusUpper = status.toUpperCase();
-				if (
-					Object.values(StatusServico).includes(statusUpper as StatusServico)
-				) {
-					statusParseado = statusUpper as StatusServico;
+				if (Object.values(Status).includes(statusUpper as Status)) {
+					statusParseado = statusUpper as Status;
 				} else {
 					throw createError(400, "Status inválido.");
 				}
@@ -36,41 +38,58 @@ class AtualizarAgendamentoService {
 				where: { id: agendamentoId },
 				data: {
 					data_hora: data,
+					observacoes_agendamento: observacoes,
 					status: statusParseado,
-					servicos: servicos
-						? {
-								update: servicos.map((servico) => ({
-									where: {
-										agendamentoId_servicoId: {
-											agendamentoId: agendamentoId,
-											servicoId: servico.servicoId,
-										},
-									},
-									data: {
-										quantidade: servico.quantidade,
-										observacoes: servico.observacoes,
-									},
-								})),
-							}
-						: undefined,
 				},
 				include: {
 					servicos: true,
 				},
 			});
+
 			if (servicos) {
 				for (const servico of servicos) {
+					let statusServicoParseado: Status = Status.AGENDADO;
+
+					if (servico.status) {
+						const statusUpper = servico.status.toUpperCase();
+						if (Object.values(Status).includes(statusUpper as Status)) {
+							statusServicoParseado = statusUpper as Status;
+						} else {
+							throw createError(
+								400,
+								`Status inválido para o serviço ${servico.servicoId}.`,
+							);
+						}
+					}
+
 					const servicoExistente = agendamentoAtualizado.servicos.find(
-						(s) => s.servicoId === servico.servicoId,
+						(s: AgendamentoServico) => s.servicoId === servico.servicoId,
 					);
 
-					if (!servicoExistente) {
+					if (servicoExistente) {
+						await prisma.agendamentoServico.update({
+							where: {
+								agendamentoId_servicoId: {
+									agendamentoId: agendamentoId,
+									servicoId: servico.servicoId,
+								},
+							},
+							data: {
+								quantidade: servico.quantidade,
+								observacoes_servico_agendamento:
+									servico.observacoes_servico_agendamento,
+								status: statusServicoParseado,
+							},
+						});
+					} else {
 						await prisma.agendamentoServico.create({
 							data: {
 								agendamentoId: agendamentoId,
 								servicoId: servico.servicoId,
 								quantidade: servico.quantidade,
-								observacoes: servico.observacoes,
+								observacoes_servico_agendamento:
+									servico.observacoes_servico_agendamento,
+								status: statusServicoParseado,
 							},
 						});
 					}
