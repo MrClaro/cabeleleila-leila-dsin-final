@@ -55,6 +55,7 @@ model agendamentoServico {
     servicoId               Int
     servico                 servico            @relation(fields: [servicoId], references: [id])
     quantidade              Int?
+    status                  status             @default(AGENDADO)
     observacoes_servico_agendamento String?
 
     @@id([agendamentoId, servicoId])
