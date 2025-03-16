@@ -25,8 +25,9 @@ class AtualizarAgendamentoController {
 			}
 
 			const atualizaSchema = Joi.object({
-				data_hora: Joi.date().min("now").optional().messages({
+				data_hora: Joi.date().greater("now").iso().optional().messages({
 					"date.min": "A data minima aceita é a data atual",
+					"date.iso": "Data inválida. O formato aceito é YYYY-MM-DD",
 				}),
 				servicos: Joi.array()
 					.items(
@@ -45,14 +46,6 @@ class AtualizarAgendamentoController {
 			if (error) {
 				return next(error);
 			}
-
-			const dataFormatada = formataData(data_hora);
-			if (!dataFormatada || isNaN(new Date(dataFormatada).getTime())) {
-				return next(
-					createError(400, "Data inválida ou fora do intervalo permitido."),
-				);
-			}
-
 			const dataCadastrada = agendamentoExistente.data_hora;
 			const dataAtual = new Date();
 
@@ -69,7 +62,7 @@ class AtualizarAgendamentoController {
 			}
 
 			try {
-				const dataFinal = new Date(dataFormatada);
+				const dataFinal = new Date(data_hora);
 
 				const agendamento =
 					await AtualizarAgendamentoService.atualizarAgendamento(
