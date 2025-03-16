@@ -11,15 +11,11 @@ class CadastrarAgendamentoController {
 		next: NextFunction,
 	): Promise<void> {
 		try {
-			const { cliente_id, usuario_id, status, data_hora, servicos } = req.body;
+			const { usuario_id, status, data_hora, servicos } = req.body;
 
 			const cadastroSchema = Joi.object({
-				cliente_id: Joi.number().positive().required().messages({
-					"number.min": "O id deve ser maior que 0",
-					"number.required": "O id do cliente é obrigatorio",
-				}),
-				data_hora: Joi.date().min("01-01-2025").required().messages({
-					"date.min": "A data minima aceita é 01/01/2025",
+				data_hora: Joi.date().min("now").required().messages({
+					"date.min": "A data minima aceita é a data atual",
 				}),
 				servicos: Joi.array()
 					.items(
@@ -38,7 +34,6 @@ class CadastrarAgendamentoController {
 			});
 
 			const { error } = cadastroSchema.validate({
-				cliente_id,
 				data_hora,
 				servicos,
 				usuario_id,
@@ -61,7 +56,6 @@ class CadastrarAgendamentoController {
 					const dataFinal = new Date(dataFormatada);
 					const agendamento =
 						await CadastrarAgendamentoService.cadastrarAgendamento(
-							cliente_id,
 							temUsuarioId,
 							status,
 							dataFinal,
