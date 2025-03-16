@@ -10,20 +10,21 @@ const prisma = new PrismaClient();
 
 class CadastrarAgendamentoService {
 	async cadastrarAgendamento(
-		cliente_id: number,
 		usuario_id: number,
 		status: string,
 		data: Date,
 		servicos: {
 			servicoId: number;
 			quantidade?: number;
-			observacoes?: string;
+			descricao?: string;
+			status?: string;
 		}[],
+		observacoes?: string,
 	): Promise<Agendamento> {
 		try {
 			const clienteExistente = await prisma.usuario.findUniqueOrThrow({
 				where: {
-					id: cliente_id,
+					id: usuario_id,
 				},
 			});
 			if (!clienteExistente) {
@@ -41,15 +42,22 @@ class CadastrarAgendamentoService {
 
 			const novoAgendamento = await prisma.agendamento.create({
 				data: {
-					cliente_id,
 					usuario_id,
 					status: statusParseado,
+					observacoes_agendamento: observacoes,
 					data_hora: data,
 					servicos: {
 						create: servicos.map((servico) => ({
 							servico: { connect: { id: servico.servicoId } },
 							quantidade: servico.quantidade,
-							observacoes: servico.observacoes,
+							descricao: servico.descricao,
+							status: servico.status
+								? Object.values(Status).includes(
+										servico.status.toUpperCase() as Status,
+									)
+									? (servico.status.toUpperCase() as Status)
+									: Status.AGENDADO
+								: Status.AGENDADO,
 						})),
 					},
 				},
