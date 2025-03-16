@@ -56,5 +56,44 @@ class ConsultarAgendamentoService {
 			}
 		}
 	}
+	async consultarAgendamentosPorData(
+		dataFim: Date,
+		dataInicio?: Date,
+	): Promise<Agendamento[]> {
+		try {
+			const agendamentos = await prisma.agendamento.findMany({
+				where: {
+					data_hora: {
+						gte: dataInicio || new Date(0),
+						lte: dataFim,
+					},
+				},
+				orderBy: {
+					data_hora: "asc",
+				},
+				include: {
+					servicos: true,
+				},
+			});
+
+			if (!agendamentos || agendamentos.length === 0) {
+				throw createError(
+					404,
+					"Nenhum agendamento encontrado no tempo passado.",
+				);
+			}
+
+			return agendamentos;
+		} catch (error) {
+			if (error instanceof Prisma.PrismaClientKnownRequestError) {
+				throw createError(500, "Erro ao acessar o banco de dados.");
+			} else if (error instanceof createError.HttpError) {
+				throw error;
+			} else {
+				console.error("Erro interno:", error);
+				throw createError(500, "Erro interno do servidor.");
+			}
+		}
+	}
 }
 export default new ConsultarAgendamentoService();
