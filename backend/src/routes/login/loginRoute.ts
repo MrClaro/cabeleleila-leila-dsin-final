@@ -44,6 +44,10 @@ router.post(
 				res.status(400).json({ response: "Senha inválida!" });
 				return;
 			}
+			const acessoGeral =
+				usuario.cargo === "ADMIN" || usuario.cargo === "EMPREGADO"
+					? true
+					: false;
 
 			try {
 				const token = await jwt.assinarAcessoToken(
@@ -54,6 +58,7 @@ router.post(
 				res.cookie("token", token, { httpOnly: true }).json({
 					id: usuario.id,
 					email: usuario.email,
+					acesso: acessoGeral,
 				});
 			} catch (err) {
 				next(createError(500, "Erro ao gerar token"));
