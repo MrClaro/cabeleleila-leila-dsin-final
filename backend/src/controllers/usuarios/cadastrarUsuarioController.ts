@@ -3,62 +3,47 @@ import createError from "http-errors";
 import Joi from "joi";
 import CadastrarUsuarioService from "../../services/usuarios/cadastrarUsuarioService";
 import formataTelefone from "../../tools/formataTelefone";
+import { usuario as Usuario } from "@prisma/client";
 
 class CadastrarUsuarioController {
 	async validarUsuario(
 		req: Request,
 		res: Response,
 		next: NextFunction,
-	): Promise<void> {
+	): Promise<Usuario | null> {
 		try {
 			const { nome, email, senha, cargo, telefone } = req.body;
-
+			console.log(
+				"nome " + nome,
+				"email " + email,
+				"senha " + senha,
+				"cargo " + cargo,
+				"telefone " + telefone,
+			);
 			const cadastroSchema = Joi.object({
 				nome: Joi.string()
 					.min(3)
 					.max(100)
 					.pattern(new RegExp("^[a-zA-Z\\s]+$"))
 					.trim()
-					.required()
-					.messages({
-						"string.patern.base": "O nome deve conter apenas letras.",
-						"string.required": "O nome é obrigatorio",
-					}),
+					.required(),
 				email: Joi.string()
-					.email({
-						minDomainSegments: 2,
-						tlds: { allow: ["com", "net"] },
-					})
-					.required()
-					.messages({
-						"string.email.minDomainSegments":
-							"O email deve estar completo com domínio.",
-						"string.email.tlds.allow": "O email deve terminar em .com ou .net.",
-						"string.required": "O email é obrigatorio",
-					}),
+					.email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } })
+					.required(),
 				senha: Joi.string()
 					.pattern(
 						new RegExp(
 							"^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&])[A-Za-z\\d@$!%*?&]{8,30}$",
 						),
 					)
-					.required()
-					.messages({
-						"string.pattern.base":
-							"A senha deve conter pelo menos 8 caracteres, uma letra maiúscula, uma letra minúscula, um número e um caractere especial.",
-						"string.required": "A senha é obrigatoria",
-					}),
+					.required(),
 				telefone: Joi.string()
 					.min(9)
 					.pattern(new RegExp("^[0-9]+$"))
-					.required()
-					.messages({
-						"string.min": "O telefone deve conter pelo menos 9 dígitos.",
-						"string.required": "O número de telefone é obrigatorio",
-					}),
-
+					.required(),
 				cargo: Joi.string().valid("EMPREGADO", "CLIENTE", "ADMIN").optional(),
 			});
+
 			const { error } = cadastroSchema.validate({
 				nome,
 				email,
@@ -68,8 +53,10 @@ class CadastrarUsuarioController {
 			});
 
 			if (error) {
-				return next(error);
+				next(error);
+				return null;
 			}
+
 			const telefoneFormatado = formataTelefone(telefone);
 
 			try {
@@ -80,14 +67,15 @@ class CadastrarUsuarioController {
 					telefoneFormatado,
 					cargo,
 				);
-				if (usuario) {
-					res.status(201).json({ usuario });
-				}
+				res.status(201).json({ usuario });
+				return usuario;
 			} catch (serviceError) {
-				return next(serviceError);
+				next(serviceError);
+				return null;
 			}
 		} catch (error) {
 			next(createError(500, "Erro interno do servidor"));
+			return null;
 		}
 	}
 }

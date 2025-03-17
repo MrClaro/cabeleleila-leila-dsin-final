@@ -11,6 +11,7 @@ class ConsultarUsuarioController {
 	): Promise<void> {
 		try {
 			const usuarios = await ConsultarUsuarioService.consultarUsuarios();
+			console.log(usuarios);
 			res.status(200).json({ usuarios });
 		} catch (error) {
 			console.log(error);
