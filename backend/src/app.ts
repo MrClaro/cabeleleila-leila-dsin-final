@@ -6,6 +6,7 @@ import http from "http";
 import logger from "morgan";
 import createError, { HttpError } from "http-errors";
 import dotenv from "dotenv";
+import cors from "cors";
 dotenv.config();
 
 // --------
@@ -13,6 +14,16 @@ dotenv.config();
 // --------
 const app = express();
 const router = express.Router();
+
+// --------
+// CORS CONFIG
+// --------
+const corsOptions = {
+	origin: process.env.ORIGIN_REQUEST || "http://localhost:3000",
+	optionsSuccessStatus: 200,
+	credentials: true,
+};
+app.use(cors(corsOptions));
 
 // --------
 // MIDDLEWARES ESSENCIAIS
@@ -39,6 +50,10 @@ import gerarToken from "./routes/token/gerarTokenRoute";
 
 // Login
 import login from "./routes/login/loginRoute";
+//Registrar
+import registrar from "./routes/registrar/registroRoute";
+// Logout
+import logout from "./routes/logout/logoutRoute";
 
 //  Usuários
 import cadastrarUsuario from "./routes/usuarios/cadastrarUsuarioRoute";
@@ -61,6 +76,8 @@ import atualizarAgendamento from "./routes/agendamentos/atualizarAgendamentoRout
 app.use("/token/gerar", gerarToken);
 
 app.use("/login", login);
+app.use("/registrar", registrar);
+app.use("/logout", validarAcesso, logout);
 
 app.use("/usuarios/cadastrar", validarAcesso, cadastrarUsuario);
 app.use("/usuarios/consultar", validarAcesso, consultarUsuario);
@@ -84,7 +101,8 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // --------
 // LIBERAR ACESSO AS PORTAS
 // --------
-app.use("/", router);
+//  Versão API
+app.use("/api/", router);
 
 // --------
 // TRATAMENTO DE ERROS
