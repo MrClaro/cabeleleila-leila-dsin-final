@@ -50,15 +50,21 @@ router.post(
 					: false;
 
 			try {
-				const token = await jwt.assinarAcessoToken(
+				const tokenHttpOnly = await jwt.assinarAcessoToken(
 					{ usuario: usuario.email, cargo: usuario.cargo },
 					{ expiresIn: "1h" },
 				);
 
-				res.cookie("token", token, { httpOnly: true }).json({
+				const tokenFrontend = await jwt.assinarAcessoToken(
+					{ usuario: usuario.email, cargo: usuario.cargo },
+					{ expiresIn: "1h" },
+				);
+
+				res.cookie("token", tokenHttpOnly, { httpOnly: true }).json({
 					id: usuario.id,
 					email: usuario.email,
 					acesso: acessoGeral,
+					token: tokenFrontend,
 				});
 			} catch (err) {
 				next(createError(500, "Erro ao gerar token"));
